@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <functional>
+#include <thread>
+#include <atomic>
 
 #include "dumpable.h"
 
@@ -452,6 +454,47 @@ TEST(basic_implementation)
     ASSERT_EQUAL(2, e->b->x);
     ASSERT_EQUAL(3, e->c);
 }
+
+#if defined(DUMPABLE_CONCURRENCY_SUPPORT)
+TEST(concurrency)
+{
+    const int iterationCount = 64;
+    std::vector<std::function<void()>> testFunctions;
+    for (int iteration = 0; iteration < iterationCount; ++iteration)
+    {
+        for (auto it = allTests.begin(); it != allTests.end(); ++it)
+        {
+            if (it->first == "concurrency")
+                continue;
+
+            testFunctions.push_back(it->second);
+        }
+    }
+    std::random_shuffle(testFunctions.begin(), testFunctions.end());
+
+    std::atomic_int testIndex = { 0 };
+    auto runner = [&]()
+    {
+        int current = testIndex++;
+        int count = static_cast<int>(testFunctions.size());
+        while (current < count)
+        {
+            auto& entry = testFunctions[current];
+            entry();
+
+            current = testIndex++;
+        }
+    };
+
+    std::vector<std::thread> threads;
+    int runnerCount = static_cast<int>(std::thread::hardware_concurrency());
+    for (int runnerIndex = 0; runnerIndex < runnerCount; ++runnerIndex)
+        threads.push_back(std::thread(runner));
+
+    for (auto& thread : threads)
+        thread.join();
+}
+#endif
 
 int testmain()
 {

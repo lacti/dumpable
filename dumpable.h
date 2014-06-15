@@ -33,12 +33,25 @@ namespace dumpable
     {
         T x;
         dpool local_pool(&x, sizeof(T));
-        dumpable::detail::dptr_alloc() = [&local_pool](void* self, dumpable::size_t size)->std::pair<void*, dumpable::ptrdiff_t>{
+
+#if defined(DUMPABLE_CONCURRENCY_SUPPORT)
+        dumpable::detail::assign_alloc([&local_pool](void* self, dumpable::size_t size)->std::pair<void*, dumpable::ptrdiff_t>{
                 return local_pool.alloc(self, size);
-            };
+            });
+#else
+        dumpable::detail::dptr_alloc() = [&local_pool](void* self, dumpable::size_t size)->std::pair<void*, dumpable::ptrdiff_t>{
+            return local_pool.alloc(self, size);
+        };
+#endif
+
         x = data;
         os.write((const char*)&x, sizeof(x));
         local_pool.write(os);
+
+#if defined(DUMPABLE_CONCURRENCY_SUPPORT)
+        dumpable::detail::release_alloc();
+#else
         dumpable::detail::dptr_alloc() = nullptr;
+#endif
     }
 }

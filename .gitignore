@@ -24,3 +24,12 @@ test.exe
 *.gcov
 test.gcda
 test.gcno
+
+# visual studio
+Debug
+Release
+*.sdf
+*.ipch
+ipch
+*.suo
+*.opensdf

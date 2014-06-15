@@ -60,7 +60,7 @@ namespace dumpable
                     clear();
                     return;
                 }
-                if (dumpable::detail::dptr_alloc())
+                if (dumpable::detail::dumpable_is_custom_alloc())
                 {
                     isPooled_ = true;
                     size_ = size;
@@ -79,7 +79,7 @@ namespace dumpable
 
             void uninitialized_resize(size_type newSize)
             {
-                assert(!dumpable::detail::dptr_alloc());
+                assert(!dumpable::detail::dumpable_is_custom_alloc());
                 size_type oldCapacity = detail::find_power_of_2_greater_than(size());
                 if (isPooled_)
                     oldCapacity = size_;

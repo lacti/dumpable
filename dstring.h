@@ -21,7 +21,7 @@ namespace dumpable
                     clear();
                     return;
                 }
-                if (dumpable::detail::dptr_alloc())
+                if (dumpable::detail::dumpable_is_custom_alloc())
                 {
                     isPooled_ = true;
                     size_ = size;
