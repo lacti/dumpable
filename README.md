@@ -93,11 +93,12 @@ I'm working at a video game company, so I want to optimize the loading speed of 
 
 It can also be used for serializing network packets. While `protobuf` is a very good tool for it, **dumpable** supports nested C++ structs.
 
-Thready Safety
+Thread Safety
 --------------
 
-Currently only one thread can call **dumpable::write**. (It uses global variable. It can be change to thread_local.)  
-**dumpable::from\_dumped\_buffer** is thread-safe.
+If you define `DUMPABLE_CONCURRENCY_SUPPORT` macro in *dumpableconf.h*, **dumpable::write** and **dumpable::from\_dumped\_buffer** are both thread-safe.
+
+Or, only **dumpable::from\_dumped\_buffer** is thread-safe.
 
 Limitation
 ----------
